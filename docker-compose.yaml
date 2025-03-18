@@ -1,0 +1,6 @@
+services:
+  givelink_app:
+    image: givelink
+    build: .
+    ports:
+      - "8000:8000"

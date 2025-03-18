@@ -6,4 +6,5 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.taskipy.tasks]
 run = 'PYTHONPATH=./ fastapi dev app.py'
-test = 'PYTHONPATH=./ pytest'
+run_lan = 'PYTHONPATH=./ fastapi dev app.py --host 0.0.0.0'
+test = 'PYTHONPATH=./ pytest -s -x --cov=src -vv'
