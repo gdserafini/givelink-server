@@ -55,7 +55,9 @@ class DonorModel:
     )
     name: Mapped[str] = mapped_column(nullable=False)
     avatar_url: Mapped[str] = mapped_column(nullable=True)
-    cpf_cnpj: Mapped[str] = mapped_column(nullable=False)
+    cpf_cnpj: Mapped[str] = mapped_column(
+        nullable=False, unique=True
+    )
     user_id: Mapped[int] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
@@ -70,7 +72,9 @@ class InstitutionModel:
     name: Mapped[str] = mapped_column(nullable=False)
     sector: Mapped[str] = mapped_column(nullable=False)
     avatar_url: Mapped[str] = mapped_column(nullable=True)
-    cnpj: Mapped[str] = mapped_column(nullable=False)
+    cnpj: Mapped[str] = mapped_column(
+        nullable=False, unique=True
+    )
     user_id: Mapped[int] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
