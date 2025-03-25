@@ -11,3 +11,6 @@ Assim é possível testar o servidor em _http://localhost:8000_ e a documentaç�
 
 Ainda, é possível rodar os testes com:
 > task test
+
+### Modelagem de dados
+![Data modeling](/modeling.png)
