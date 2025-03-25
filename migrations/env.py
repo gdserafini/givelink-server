@@ -12,7 +12,7 @@ config = context.config
 #for migration with docker use this after run the comand: docker compose up --build
 config.set_main_option(
     'sqlalchemy.url', 
-    'postgresql+psycopg://app_user:app_password@host.docker.internal:5432/app_db'
+    f'postgresql+psycopg://app_user:{Settings().POSTGRES_PASSWORD}@host.docker.internal:5432/app_db'
 )
 
 # Interpret the config file for Python logging.
