@@ -8,8 +8,8 @@ from config.settings import Settings
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-#config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)
-#for migration with docker use this after run the comand: docker compose up --build
+#config.set_main_option('sqlalchemy.url', Settings().DATABASE_URL)   
+#for migration with docker use this after run docker compose up --build
 config.set_main_option(
     'sqlalchemy.url', 
     f'postgresql+psycopg://app_user:{Settings().POSTGRES_PASSWORD}@host.docker.internal:5432/app_db'

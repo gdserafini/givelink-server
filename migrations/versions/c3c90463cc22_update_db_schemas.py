@@ -1,8 +1,8 @@
-"""Initial migration
+"""update db schemas
 
-Revision ID: 40b1f4e94f0f
+Revision ID: c3c90463cc22
 Revises: 
-Create Date: 2025-03-24 22:42:12.234608
+Create Date: 2025-03-25 22:26:54.822679
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '40b1f4e94f0f'
+revision: str = 'c3c90463cc22'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -46,7 +46,8 @@ def upgrade() -> None:
     sa.Column('cpf_cnpj', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('cpf_cnpj')
     )
     op.create_table('institutions',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
@@ -56,7 +57,8 @@ def upgrade() -> None:
     sa.Column('cnpj', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('cnpj')
     )
     op.create_table('donations',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
