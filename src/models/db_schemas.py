@@ -27,16 +27,6 @@ class UserModel:
     )
 
 
-class RoleEnum(str, Enum):
-    ADMIN = 'admin'
-    USER = 'user'
-
-
-class RoleEnumLevel(int, Enum):
-    ADMIN = 1
-    USER = 2
-
-
 @table_registry.mapped_as_dataclass
 class RolesModel:
     __tablename__ = 'roles'
@@ -78,12 +68,6 @@ class InstitutionModel:
     user_id: Mapped[int] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
-
-
-class PaymentMethod(str, Enum):
-    PIX = 'pix'
-    TED = 'ted'
-    BOLETO = 'boleto'
 
 
 @table_registry.mapped_as_dataclass
