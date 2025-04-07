@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, inspect
 from config.settings import Settings
+from src.controllers.user_controller import router as user_router
+from src.service.session import setup_db
+import sys
 
 
 engine = create_engine(Settings().DATABASE_URL)
@@ -15,16 +18,10 @@ def get_session():
 
 async def lifespan(app: FastAPI):
     try:
-        with engine.connect() as connection:
-            print(f'Successfully connection: {connection}')
-            inspector = inspect(engine)
-            #if 'users' not in inspector.get_table_names():
-            #    print('Not found db tables, running migrations...')
-            #    subprocess.run(['alembic', 'upgrade', 'head'], check=True)
-            #    print('Finished migrations.')
+        setup_db()
     except Exception as e:
-        detail = f'Database connection error: {e}'
-        raise Exception(message=detail)
+        print(e)
+        sys.exit(1)
     yield
 
 
@@ -38,6 +35,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(user_router)
 
 
 @app.get("/")

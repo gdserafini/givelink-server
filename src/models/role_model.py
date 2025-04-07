@@ -4,7 +4,7 @@ from enum import Enum
 
 class RoleLevelEnum(Enum):
     USER = 1
-    ADMIM = 2
+    ADMIN = 2
 
 
 class RoleEnum(Enum):
