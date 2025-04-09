@@ -19,3 +19,13 @@ class UserAlreadyExistsException(HTTPException): # pragma: no cover
     ):
         msg = f'User already exists: username = {username}, email = {email}'
         super().__init__(status_code=status_code, detail=msg)
+
+
+class UserNotFoundException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.NOT_FOUND, 
+        datail: str = 'User not found',
+        user_id: int = None
+    ):
+        msg = f'User not found: id = {user_id}'
+        super().__init__(status_code=status_code, detail=msg)

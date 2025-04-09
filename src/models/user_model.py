@@ -1,5 +1,9 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 
+
+class Message(BaseModel):
+    message: str
+
         
 class User(BaseModel):
     username: str
