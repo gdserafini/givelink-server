@@ -12,6 +12,11 @@ class RoleEnum(Enum):
     ADMIN = 'admin'
 
 
+class RoleIdEnum(Enum):
+    USER = 0
+    ADMIN = 1
+
+
 class Role(BaseModel):
     id: int
     role: RoleEnum = RoleEnum.USER

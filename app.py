@@ -25,7 +25,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title='givelink-api',
+    description='GiveLink API reference.',
+    version='0.0.1',
+    lifespan=lifespan
+)
 
 
 app.add_middleware(

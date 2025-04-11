@@ -2,11 +2,26 @@ from src.models.user_model import User, UserResponse, Message
 from sqlalchemy.orm import Session
 from src.models.db_schemas import UserModel, RolesModel
 from sqlalchemy import select
-from src.models.exceptions import UserAlreadyExistsException, UserNotFoundException
+from src.models.exceptions import UserAlreadyExistsException, UserNotFoundException, InvalidDataException
 from src.service.security import get_password_hash
+import re
+from src.models.role_model import RoleIdEnum
+
+
+def validate_user_data(user: User):
+    if user.username:
+        if not re.fullmatch(r'[a-z]{3,255}', user.username):
+            raise InvalidDataException(invalid_data=user.username)
+    if user.password:
+        if len(user.password) < 8 or len(user.password) > 255\
+                or not re.search(r"[A-Z]", user.password)\
+                or not re.search(r"[0-9]", user.password)\
+                or not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=\[\]\\\/]", user.password):
+            raise InvalidDataException(invalid_data='password')
 
 
 def create_user_service(user: User, session: Session) -> UserResponse:
+    validate_user_data(user)
     result = session.scalar(
         select(UserModel).where(
             (UserModel.username == user.username) |
@@ -23,7 +38,7 @@ def create_user_service(user: User, session: Session) -> UserResponse:
         email=user.email,
         password=get_password_hash(user.password),
         avatar_url=user.avatar_url,
-        role_id=0
+        role_id=RoleIdEnum.USER.value
     )
     session.add(user_db)
     session.commit()
@@ -86,10 +101,20 @@ def delete_user_by_id_service(
 def update_user_service(
     user_id: int, user: User, session: Session
 ) -> UserResponse:
+    validate_user_data(user)
     user_db = get_user_by_id_service(user_id, session, False)
-    user_db.username = user.username
-    user_db.email = user.email
-    user_db.password = get_password_hash(user.password)
+    if user.username: 
+        result = session.scalar(
+            select(UserModel).where(
+                (UserModel.username == user.username)
+            )
+        )
+        if result:
+            raise UserAlreadyExistsException(detail='Username already in use.')
+        else:
+            user_db.username = user.username
+    if user.password: user_db.password = get_password_hash(user.password)
+    if user.avatar_url: user_db.avatar_url = user.avatar_url
     session.commit()
     session.refresh(user_db)
     return cast_to_user_response(user_db, session)

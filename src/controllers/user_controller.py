@@ -1,6 +1,9 @@
 from http import HTTPStatus
 from fastapi import APIRouter
-from src.models.user_model import UserResponse, User, UserResponseList, Message
+from src.models.user_model import (
+    UserResponse, User, UserResponseList, 
+    Message, UserUpdate
+)
 from src.utils.responses import responses
 from src.utils.types import T_Session
 from src.service.user_service import (
@@ -96,7 +99,7 @@ def delete_user_by_id(
     } 
 )
 def update_user(
-    user_id: int, user_data: User, 
+    user_id: int, user_data: UserUpdate, 
     session: T_Session, 
     #current_user: T_CurrentUser
 ) -> UserResponse:

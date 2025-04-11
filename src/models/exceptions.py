@@ -29,3 +29,12 @@ class UserNotFoundException(HTTPException): # pragma: no cover
     ):
         msg = f'User not found: id = {user_id}'
         super().__init__(status_code=status_code, detail=msg)
+
+    
+class InvalidDataException(HTTPException):
+    def __init__(self, 
+        status_code: int = HTTPStatus.UNPROCESSABLE_ENTITY,
+        invalid_data: str = None
+    ):
+        msg = f'Unprocessable entity: {invalid_data}'
+        super().__init__(status_code=status_code, detail=msg)
