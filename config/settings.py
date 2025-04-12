@@ -13,3 +13,4 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_DB: str
     POSTGRES_PASSWORD: str
+    ADMIN_SYSTEM_PASSWORD: str
