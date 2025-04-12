@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from config.settings import Settings
 from src.models.exceptions import DatabaseConnectionError
 import subprocess
-from src.models.db_schemas import RolesModel
+from src.models.db_schemas import RolesModel, UserModel
 from sqlalchemy import select
-from src.models.role_model import RoleEnum, RoleLevelEnum
+from src.models.role_model import RoleEnum, RoleLevelEnum, RoleIdEnum
 
 
 engine = create_engine(Settings().DATABASE_URL)
@@ -17,6 +17,7 @@ def get_session(): # pragma: no cover
 
 
 def setup_db() -> None:
+    from src.service.security import get_password_hash
     try:
         with engine.connect() as connection:
             print(f'Successfully connection: {connection}')
@@ -25,18 +26,34 @@ def setup_db() -> None:
                 print('Not found db tables, running migrations...')
                 subprocess.run(['alembic', 'upgrade', 'head'], check=True)
                 print('Finished migrations.')
-
         with Session(engine) as session:
             roles = session.scalar(select(RolesModel).limit(1))
             if not roles:
                 print('Table "roles" is empty, inserting default roles...')
                 default_roles = [
-                    RolesModel(id=0, role=RoleEnum.USER.value, level=RoleLevelEnum.USER.value),
-                    RolesModel(id=1, role=RoleEnum.ADMIN.value, level=RoleLevelEnum.ADMIN.value),
+                    RolesModel(id=RoleIdEnum.USER, role=RoleEnum.USER.value, level=RoleLevelEnum.USER.value),
+                    RolesModel(id=RoleIdEnum.ADMIN, role=RoleEnum.ADMIN.value, level=RoleLevelEnum.ADMIN.value),
                 ]
                 session.add_all(default_roles)
                 session.commit()
                 print('Default roles inserted.')
+            user_admin = session.scalar(
+                select(UserModel).where(
+                    UserModel.username == 'admin'
+                )
+            )
+            if not user_admin:
+                print('Admin user not found, inserting default admin user...')
+                admin = UserModel(
+                    username='admin',
+                    email='admin@givelink.com',
+                    password=get_password_hash(Settings().ADMIN_SYSTEM_PASSWORD),
+                    role_id=RoleIdEnum.ADMIN.value,
+                    avatar_url=''
+                )
+                session.add(admin)
+                session.commit()
+                print('Admin user inserted.')
     except Exception as e:
         detail = f'Database connection error: {e}'
         raise DatabaseConnectionError(message=detail)

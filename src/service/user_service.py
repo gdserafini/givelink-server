@@ -2,22 +2,10 @@ from src.models.user_model import User, UserResponse, Message
 from sqlalchemy.orm import Session
 from src.models.db_schemas import UserModel, RolesModel
 from sqlalchemy import select
-from src.models.exceptions import UserAlreadyExistsException, UserNotFoundException, InvalidDataException
+from src.models.exceptions import UserAlreadyExistsException, UserNotFoundException
 from src.service.security import get_password_hash
-import re
 from src.models.role_model import RoleIdEnum
-
-
-def validate_user_data(user: User):
-    if user.username:
-        if not re.fullmatch(r'[a-z]{3,255}', user.username):
-            raise InvalidDataException(invalid_data=user.username)
-    if user.password:
-        if len(user.password) < 8 or len(user.password) > 255\
-                or not re.search(r"[A-Z]", user.password)\
-                or not re.search(r"[0-9]", user.password)\
-                or not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=\[\]\\\/]", user.password):
-            raise InvalidDataException(invalid_data='password')
+from src.utils.validations import validate_user_data
 
 
 def create_user_service(user: User, session: Session) -> UserResponse:
