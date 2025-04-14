@@ -31,8 +31,8 @@ def setup_db() -> None:
             if not roles:
                 print('Table "roles" is empty, inserting default roles...')
                 default_roles = [
-                    RolesModel(id=RoleIdEnum.USER, role=RoleEnum.USER.value, level=RoleLevelEnum.USER.value),
-                    RolesModel(id=RoleIdEnum.ADMIN, role=RoleEnum.ADMIN.value, level=RoleLevelEnum.ADMIN.value),
+                    RolesModel(id=RoleIdEnum.USER.value, role=RoleEnum.USER.value, level=RoleLevelEnum.USER.value),
+                    RolesModel(id=RoleIdEnum.ADMIN.value, role=RoleEnum.ADMIN.value, level=RoleLevelEnum.ADMIN.value),
                 ]
                 session.add_all(default_roles)
                 session.commit()
