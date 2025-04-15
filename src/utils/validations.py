@@ -5,6 +5,11 @@ from src.models.db_schemas import UserModel, RolesModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.models.role_model import RoleEnum
+from src.models.donor_model import Donor
+
+
+def validate_donor_data(donor: Donor) -> None:
+    ...
 
 
 def authorize_user(current_id: int, id: int) -> None:

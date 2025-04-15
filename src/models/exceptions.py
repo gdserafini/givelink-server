@@ -33,6 +33,15 @@ class UserAlreadyExistsException(HTTPException): # pragma: no cover
         super().__init__(status_code=status_code, detail=msg)
 
 
+class DonorAlreadyExistsException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.BAD_REQUEST, 
+        donor: str = None
+    ):
+        msg = f'Donor already exists: CPF/CNPJ {donor}'
+        super().__init__(status_code=status_code, detail=msg)
+
+
 class InvalidLoginException(HTTPException): # pragma: no cover
     def __init__(self, 
         status_code: int = HTTPStatus.UNAUTHORIZED, 
@@ -62,7 +71,15 @@ class InvalidDataException(Exception):
         self,
         invalid_data: str = None
     ):
-        status_code: int = HTTPStatus.UNPROCESSABLE_ENTITY,
-        message: str = 'Invalid data: ',
+        status_code: int = HTTPStatus.UNPROCESSABLE_ENTITY
+        message: str = 'Invalid data: '
         detail = f'{status_code} - {message}{invalid_data}'
         super.__init__(status_code=status_code, detail=detail)
+
+
+class InvalidFormException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.UNPROCESSABLE_ENTITY, 
+        detail: str = 'Invalid data.'
+    ):
+        super().__init__(status_code=status_code, detail=detail)
