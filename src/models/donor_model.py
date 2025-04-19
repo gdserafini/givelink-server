@@ -26,6 +26,7 @@ class Donor(BaseModel):
 
 
 class DonorResponse(BaseModel):
+    id: int
     name: str
     avatar_url: Optional[str] = None
     cpf_cnpj: str

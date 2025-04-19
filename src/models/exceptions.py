@@ -12,6 +12,16 @@ class UserNotFoundException(HTTPException): # pragma: no cover
         super().__init__(status_code=status_code, detail=msg)
 
 
+class DonorNotFoundException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.NOT_FOUND, 
+        donor_id: int = None
+    ):
+        msg = f'Donor not found: id = {donor_id}'
+        super().__init__(status_code=status_code, detail=msg)
+
+
+
 class TaskNotFoundException(HTTPException): # pragma: no cover
     def __init__(self, 
         status_code: int = HTTPStatus.NOT_FOUND, 
