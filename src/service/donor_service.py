@@ -1,11 +1,12 @@
 from src.models.donor_model import Donor, DonorResponse
-from src.models.user_model import User
+from src.models.user_model import User, Message
 from sqlalchemy.orm import Session
 from src.models.db_schemas import DonorModel, UserModel
 from sqlalchemy import select
 from src.models.exceptions import (
     DonorAlreadyExistsException, InvalidFormException, DonorNotFoundException
 )
+
 
 
 def create_donor_service(
@@ -92,3 +93,15 @@ def get_donor_by_id_service(
         raise DonorNotFoundException(donor_id=donor_id)
     if cast: return cast_to_donor_response(donor, session)
     else: return donor    
+
+
+def delete_donor_by_id_service(
+    id: int, 
+    session: Session
+) -> Message:
+    donor = get_donor_by_id_service(session, id, False)
+    session.delete(donor)
+    session.commit()
+    return Message(
+        message=f'Donor: {id} deleted successfuly.'
+    )

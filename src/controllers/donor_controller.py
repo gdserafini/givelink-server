@@ -3,7 +3,12 @@ from src.utils.responses import responses
 from http import HTTPStatus
 from src.utils.types import T_CurrentUser, T_Session
 from src.models.donor_model import Donor, DonorResponse, DonorResponseList
-from src.service.donor_service import create_donor_service, get_donors_service, get_donor_by_id_service
+from src.service.donor_service import (
+    create_donor_service, get_donors_service, get_donor_by_id_service,
+    delete_donor_by_id_service
+)
+from src.models.user_model import Message
+from src.utils.validations import authorize_donor_operation, is_admin
 
 
 router = APIRouter(prefix='/donor', tags=['donors'])
@@ -65,3 +70,26 @@ def get_donors(
     session: T_Session  
 ) -> DonorResponse:
     return get_donor_by_id_service(session, donor_id)
+
+
+@router.delete(
+    '/{donor_id}',
+    response_model=Message,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error'],
+        **responses['unauthorized'],
+        **responses['forbidden']
+    }
+)
+def delete_donor_by_id(
+    donor_id: int, 
+    session: T_Session, 
+    current_user: T_CurrentUser
+) -> Message:
+    user_is_admin = is_admin(current_user, session)
+    if not user_is_admin:
+        authorize_donor_operation(current_user.id, donor_id, session)
+    return delete_donor_by_id_service(donor_id, session)
+    
