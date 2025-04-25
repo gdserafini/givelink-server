@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from config.settings import Settings
 from src.controllers.user_controller import router as user_router
 from src.controllers.auth_controller import router as auth_router
+from src.controllers.donor_controller import router as donor_router
 from src.service.session import setup_db
 import sys
 
@@ -45,6 +46,7 @@ app.add_middleware(
 
 app.include_router(user_router)
 app.include_router(auth_router)
+app.include_router(donor_router)
 
 
 @app.get("/")

@@ -1,10 +1,15 @@
 from src.models.exceptions import ForbiddenException, InvalidDataException
 from src.models.user_model import User
 import re
-from src.models.db_schemas import UserModel, RolesModel
+from src.models.db_schemas import UserModel, RolesModel, DonorModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.models.role_model import RoleEnum
+from src.models.donor_model import Donor
+
+
+def validate_donor_data(donor: Donor) -> None:
+    ...
 
 
 def authorize_user(current_id: int, id: int) -> None:
@@ -12,7 +17,23 @@ def authorize_user(current_id: int, id: int) -> None:
         raise ForbiddenException(
             detail='User not allowed to access/use this resource.'
         )
-    
+
+
+def authorize_donor_operation(
+    current_id: int, 
+    donor_id: int,
+    session: Session
+) -> None:
+    donor = session.scalar(
+        select(DonorModel).where(
+            DonorModel.id == donor_id
+        )
+    )
+    if donor.user_id != current_id:
+        raise ForbiddenException(
+            detail='User not allowed to access/use/delete this resource.'
+        )
+
 
 def validate_user_data(user: User):
     if user.username:
