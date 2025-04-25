@@ -8,7 +8,6 @@ class Donor(BaseModel):
     name: str
     avatar_url: Optional[str] = None
     cpf_cnpj: str
-    username: Optional[str] = None
 
     @field_validator('name')
     @classmethod
@@ -43,3 +42,8 @@ class DonorDB(Donor):
 
 class DonorResponseList(BaseModel):
     donors: list[DonorResponse]
+
+
+class DonorUpdate(BaseModel):
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None

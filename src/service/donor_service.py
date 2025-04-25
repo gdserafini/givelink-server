@@ -1,4 +1,4 @@
-from src.models.donor_model import Donor, DonorResponse
+from src.models.donor_model import Donor, DonorResponse, DonorUpdate
 from src.models.user_model import User, Message
 from sqlalchemy.orm import Session
 from src.models.db_schemas import DonorModel, UserModel
@@ -19,11 +19,11 @@ def create_donor_service(
     )
     if result:
         raise DonorAlreadyExistsException(donor=donor.cpf_cnpj)
-    if not donor.username and user.username == 'admin':
+    if user.username == 'admin':
         raise InvalidFormException(
             detail='Not allowed to create a donor for the admin user.'
         )
-    user_username = donor.username if donor.username else user.username
+    user_username = user.username
     user_db = session.scalar(
         select(UserModel).where(
             UserModel.username == user_username
@@ -39,11 +39,13 @@ def create_donor_service(
     session.commit()
     session.refresh(donor_db)
     return DonorResponse(
+        id=donor_db.id,
         name=donor_db.name,
         avatar_url=donor_db.avatar_url,
         cpf_cnpj=donor_db.cpf_cnpj,
         username=user_db.username
     )
+
 
 def get_donors_service(
     session: Session,
@@ -105,3 +107,16 @@ def delete_donor_by_id_service(
     return Message(
         message=f'Donor: {id} deleted successfuly.'
     )
+
+
+def update_donor_service(
+    donor_id: int, 
+    donor_data: DonorUpdate,
+    session: Session
+) -> DonorResponse:
+    donor = get_donor_by_id_service(session, donor_id, False)
+    if donor_data.name: donor.name = donor_data.name
+    if donor_data.avatar_url: donor.avatar_url = donor_data.avatar_url
+    session.commit()
+    session.refresh(donor)
+    return cast_to_donor_response(donor, session)

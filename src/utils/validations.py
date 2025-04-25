@@ -26,7 +26,7 @@ def authorize_donor_operation(
 ) -> None:
     donor = session.scalar(
         select(DonorModel).where(
-            DonorModel == donor_id
+            DonorModel.id == donor_id
         )
     )
     if donor.user_id != current_id:

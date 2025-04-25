@@ -2,10 +2,13 @@ from fastapi import APIRouter
 from src.utils.responses import responses
 from http import HTTPStatus
 from src.utils.types import T_CurrentUser, T_Session
-from src.models.donor_model import Donor, DonorResponse, DonorResponseList
+from src.models.donor_model import (
+    Donor, DonorResponse, DonorResponseList,
+    DonorUpdate
+)
 from src.service.donor_service import (
     create_donor_service, get_donors_service, get_donor_by_id_service,
-    delete_donor_by_id_service
+    delete_donor_by_id_service, update_donor_service
 )
 from src.models.user_model import Message
 from src.utils.validations import authorize_donor_operation, is_admin
@@ -93,3 +96,24 @@ def delete_donor_by_id(
         authorize_donor_operation(current_user.id, donor_id, session)
     return delete_donor_by_id_service(donor_id, session)
     
+
+@router.put(
+    '/{donor_id}',
+    response_model=DonorResponse,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error'],
+        **responses['unauthorized'],
+        **responses['forbidden']
+    } 
+)
+def update_donor(
+    donor_id: int, 
+    donor_data: DonorUpdate, 
+    session: T_Session, 
+    current_user: T_CurrentUser
+) -> DonorResponse:
+    if not is_admin(current_user, session):
+        authorize_donor_operation(current_user.id, donor_id, session)
+    return update_donor_service(donor_id, donor_data, session)
