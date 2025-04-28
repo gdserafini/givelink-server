@@ -21,7 +21,7 @@ Ainda, é possível configurar e rodar os testes com:
 ![Data modeling](/modeling.png)
 
 ### Equipe
-Dirceu
-Giordano
-Victor Gabriel
-Vinícius Yudi
+* Dirceu
+* Giordano
+* Victor Gabriel
+* Vinícius Yudi
