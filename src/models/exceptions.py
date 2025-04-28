@@ -21,6 +21,15 @@ class DonorNotFoundException(HTTPException): # pragma: no cover
         super().__init__(status_code=status_code, detail=msg)
 
 
+class InstitutionNotFoundException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.NOT_FOUND, 
+        institution_id: int = None
+    ):
+        msg = f'Institution not found: id = {institution_id}'
+        super().__init__(status_code=status_code, detail=msg)
+
+
 
 class TaskNotFoundException(HTTPException): # pragma: no cover
     def __init__(self, 
@@ -49,6 +58,15 @@ class DonorAlreadyExistsException(HTTPException): # pragma: no cover
         donor: str = None
     ):
         msg = f'Donor already exists: CPF/CNPJ {donor}'
+        super().__init__(status_code=status_code, detail=msg)
+
+
+class InstitutionAlreadyExistsException(HTTPException): # pragma: no cover
+    def __init__(self, 
+        status_code: int = HTTPStatus.BAD_REQUEST, 
+        institution: str = None
+    ):
+        msg = f'Institution already exists: CNPJ {institution}'
         super().__init__(status_code=status_code, detail=msg)
 
 
