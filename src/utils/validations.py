@@ -1,7 +1,7 @@
 from src.models.exceptions import ForbiddenException, InvalidDataException
 from src.models.user_model import User
 import re
-from src.models.db_schemas import UserModel, RolesModel, DonorModel
+from src.models.db_schemas import UserModel, RolesModel, DonorModel, InstitutionModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.models.role_model import RoleEnum
@@ -30,6 +30,22 @@ def authorize_donor_operation(
         )
     )
     if donor.user_id != current_id:
+        raise ForbiddenException(
+            detail='User not allowed to access/use/delete this resource.'
+        )
+    
+
+def authorize_institution_operation(
+    current_id: int, 
+    institution_id: int,
+    session: Session
+) -> None:
+    institution = session.scalar(
+        select(InstitutionModel).where(
+            InstitutionModel.id == institution_id
+        )
+    )
+    if institution.user_id != current_id:
         raise ForbiddenException(
             detail='User not allowed to access/use/delete this resource.'
         )

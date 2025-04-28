@@ -4,10 +4,11 @@ from src.models.exceptions import InvalidFormException
 import re
 
 
-class Donor(BaseModel):
+class Institution(BaseModel):
     name: str
-    avatar_url: Optional[str] = None
-    cpf_cnpj: str
+    sector: str
+    avatar_url: Optional[str]
+    cnpj: str
 
     @field_validator('name')
     @classmethod
@@ -16,36 +17,38 @@ class Donor(BaseModel):
             raise InvalidFormException(detail=f'Invalid: {value}')
         return value
 
-    @field_validator('cpf_cnpj')
+    @field_validator('cnpj')
     @classmethod
-    def validate_cpfcnpj(cls, value: str) -> str:
-        if not re.fullmatch(r'\d{11}|\d{14}', value):
+    def validate_cnpj(cls, value: str) -> str:
+        if not re.fullmatch(r'\d{14}', value):
             raise InvalidFormException(detail=f'Invalid: {value}')
         return value
 
 
-class DonorResponse(BaseModel):
+class InstitutionResponse(BaseModel):
     id: int
     name: str
-    avatar_url: Optional[str] = None
-    cpf_cnpj: str
+    sector: str
+    avatar_url: Optional[str]
+    cnpj: str
     username: str
     model_config = ConfigDict(
         from_attributes=True, ser_json_timedelta='iso8601'
     )
 
 
-class DonorDB(Donor):
+class DonorDB(Institution):
     id: int
     user_id: int
 
 
-class DonorResponseList(BaseModel):
-    donors: list[DonorResponse]
+class InstitutionResponseList(BaseModel):
+    institutions: list[InstitutionResponse]
 
 
-class DonorUpdate(BaseModel):
+class InstitutionUpdate(BaseModel):
     name: Optional[str] = None
+    sector: Optional[str] = None
     avatar_url: Optional[str] = None
 
     @field_validator('name')
