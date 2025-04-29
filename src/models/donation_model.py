@@ -5,8 +5,9 @@ from src.models.exceptions import InvalidFormException
 
 class Donation(BaseModel):
     amount: float
-    date: datetime
     payment_method: str
+    institution_id: int
+    donor_id: int
 
     @field_validator('amount')
     @classmethod
@@ -33,8 +34,6 @@ class DonationResponse(BaseModel):
 
 class DonationDB(Donation):
     id: int
-    institution_id: int
-    donor_id: int
 
 
 class DonationResponseList(BaseModel):
