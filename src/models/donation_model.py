@@ -12,7 +12,7 @@ class Donation(BaseModel):
     @field_validator('amount')
     @classmethod
     def validate_amount(cls, value: float) -> float:
-        if(value <= 0):
+        if(value < 0.01):
             raise InvalidFormException(
                 detail=f'Invalid: amount: {value}.'
             )

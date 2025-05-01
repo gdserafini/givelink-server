@@ -1,15 +1,11 @@
 from src.models.exceptions import ForbiddenException, InvalidDataException
 from src.models.user_model import User
 import re
-from src.models.db_schemas import UserModel, RolesModel, DonorModel, InstitutionModel
+from src.models.db_schemas import UserModel, RolesModel, DonorModel, InstitutionModel, DonationModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.models.role_model import RoleEnum
 from src.models.donor_model import Donor
-
-
-def validate_donor_data(donor: Donor) -> None:
-    ...
 
 
 def authorize_user(current_id: int, id: int) -> None:
@@ -70,3 +66,29 @@ def is_admin(user: UserModel, session: Session) -> bool:
         )
     )
     return role.role == RoleEnum.ADMIN.value
+
+
+def authorize_delete_donation_operation(
+    session, 
+    donation_id: int, 
+    user_id: int
+) -> None:
+    user = session.scalar(
+        select(UserModel).where(
+            UserModel.id == user_id
+        )
+    )
+    donation = session.scalar(
+        select(DonationModel).where(
+            DonationModel.id == donation_id
+        )
+    )
+    institution = session.scalar(
+        select(InstitutionModel).where(
+            InstitutionModel.id == donation.institution_id
+        )
+    )
+    if user.id != institution.user_id:
+        raise ForbiddenException(
+            detail='User not allowed to access this resource.'
+        )
