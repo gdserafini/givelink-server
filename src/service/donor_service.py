@@ -8,7 +8,6 @@ from src.models.exceptions import (
 )
 
 
-
 def create_donor_service(
     donor: Donor, user: User, session: Session
 ) -> DonorResponse:
@@ -120,3 +119,18 @@ def update_donor_service(
     session.commit()
     session.refresh(donor)
     return cast_to_donor_response(donor, session)
+
+
+def get_donors_logged_service(
+    session: Session, user_id: int
+) -> list[DonorResponse]:
+    donors = session.scalars(
+        select(
+            DonorModel
+        ).where(
+            DonorModel.user_id == user_id
+        )
+    ).all()
+    return [
+        cast_to_donor_response(donor, session) for donor in donors
+    ]

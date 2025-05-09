@@ -8,13 +8,36 @@ from src.models.donor_model import (
 )
 from src.service.donor_service import (
     create_donor_service, get_donors_service, get_donor_by_id_service,
-    delete_donor_by_id_service, update_donor_service
+    delete_donor_by_id_service, update_donor_service, get_donors_logged_service
 )
 from src.models.user_model import Message
 from src.utils.validations import authorize_donor_operation, is_admin
 
 
 router = APIRouter(prefix='/donor', tags=['donors'])
+
+
+@router.get(
+    '/list/me',
+    response_model=DonorResponseList,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error'],
+        **responses['unauthorized']
+    }
+)
+def get_donations_logged(
+    session: T_Session,
+    current_user: T_CurrentUser
+) -> list[DonorResponse]:
+    donations = get_donors_logged_service(
+        session, 
+        current_user.id
+    )
+    return {
+        'donors': donations
+    }
 
 
 @router.post(

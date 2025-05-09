@@ -8,7 +8,7 @@ from src.models.institution_model import (
 )
 from src.service.institution_service import (
     create_institution_service, get_institutions_service, get_institution_by_id_service,
-    delete_institution_by_id_service, update_institution_service
+    delete_institution_by_id_service, update_institution_service, get_institutions_logged_service
 )
 from src.models.user_model import Message
 from src.utils.validations import is_admin, authorize_institution_operation 
@@ -37,6 +37,29 @@ def create_institution(
         institution, current_user, session
     )
     return created_institution
+
+
+@router.get(
+    '/list/me',
+    response_model=InstitutionResponseList,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error'],
+        **responses['unauthorized']
+    }
+)
+def get_donations_logged(
+    session: T_Session,
+    current_user: T_CurrentUser
+) -> list[InstitutionResponse]:
+    institutions = get_institutions_logged_service(
+        session, 
+        current_user.id
+    )
+    return {
+        'institutions': institutions
+    }
 
 
 @router.get(

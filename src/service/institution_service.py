@@ -8,6 +8,21 @@ from src.models.exceptions import (
 from src.models.institution_model import Institution, InstitutionResponse, InstitutionUpdate
 
 
+def get_institutions_logged_service(
+    session: Session, user_id: int
+) -> list[InstitutionResponse]:
+    institutions = session.scalars(
+        select(
+            InstitutionModel
+        ).where(
+            InstitutionModel.user_id == user_id
+        )
+    ).all()
+    return [
+        cast_to_institution_response(inst, session) for inst in institutions
+    ]
+
+
 def create_institution_service(
     institution: Institution, user: User, session: Session
 ) -> InstitutionResponse:
