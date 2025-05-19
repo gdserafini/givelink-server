@@ -49,14 +49,24 @@ def get_donations(
     current_user: T_CurrentUser, 
     institution_id: int,
     offset: int = 0, 
-    limit: int = 100    
+    limit: int = 100,
+    max_amount: float = None,
+    min_amount: float = None,
+    min_date: int = None,
+    max_date: int = None,
+    payment_method: str = None   
 ) -> list[DonationResponse]:
     donations = get_donations_service(
         current_user.id, 
         institution_id, 
         session, 
         offset, 
-        limit
+        limit,
+        max_amount,
+        min_amount,
+        min_date,
+        max_date,
+        payment_method
     )
     return {'donations': donations}
 

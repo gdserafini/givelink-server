@@ -8,6 +8,37 @@ from src.models.exceptions import (
 from src.models.institution_model import Institution, InstitutionResponse, InstitutionUpdate
 
 
+def get_institutions_logged_service(
+    session: Session, 
+    user_id: int,
+    sector: str = None
+) -> list[InstitutionResponse]:
+    if not sector:
+        institutions = session.scalars(
+            select(
+                InstitutionModel
+            ).where(
+                InstitutionModel.user_id == user_id
+            )
+        ).all()
+        return [
+            cast_to_institution_response(inst, session) 
+            for inst in institutions
+        ]
+    institutions = session.scalars(
+        select(
+            InstitutionModel
+        ).where(
+            (InstitutionModel.user_id == user_id) &
+            (InstitutionModel.sector == sector)
+        )
+    ).all()
+    return [
+        cast_to_institution_response(inst, session) 
+        for inst in institutions
+    ]
+
+
 def create_institution_service(
     institution: Institution, user: User, session: Session
 ) -> InstitutionResponse:
@@ -17,7 +48,7 @@ def create_institution_service(
         )
     )
     if result:
-        raise InstitutionAlreadyExistsException(institution==institution.cnpj)
+        raise InstitutionAlreadyExistsException(institution=institution.cnpj)
     if user.username == 'admin':
         raise InvalidFormException(
             detail='Not allowed to create a institution for the admin user.'
@@ -51,16 +82,19 @@ def create_institution_service(
 def get_institutions_service(
     session: Session,
     offset: int,
-    limit: int
+    limit: int,
+    sector: str
 ) -> list[InstitutionResponse]:
-    if offset < 0 or limit < 0 or \
-        type(offset) != int or type(limit) != int:
-        raise ValueError('Invalid params.')
-    institutions = session.scalars(
-        select(InstitutionModel).offset(offset).limit(limit)
-    ).all()
+    if offset < 0 or limit < 0:
+        raise ValueError("Invalid params.")
+    query = select(InstitutionModel)
+    if sector:
+        query = query.where(InstitutionModel.sector == sector)
+    query = query.offset(offset).limit(limit)
+    institutions = session.scalars(query).all()
     return [
-        cast_to_institution_response(institution, session) for institution in institutions
+        cast_to_institution_response(institution, session)
+        for institution in institutions
     ]
 
 

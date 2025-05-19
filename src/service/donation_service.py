@@ -5,6 +5,75 @@ from sqlalchemy import select
 from src.models.user_model import User, Message
 from fastapi import HTTPException
 from http import HTTPStatus
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen.canvas import Canvas
+
+
+TAX = 0.04
+FEES = 0.0199
+
+
+def generate_contract(donation: DonationResponse) -> None:
+    contract_text = f"""
+    Este contrato firma a doação de ID {donation.id} entre o doador: {donation.donor} 
+    e a instituição {donation.institution} na data de {donation.date}. 
+    O valor doador é de R$ {donation.amount} pago via {donation.payment_method}
+
+    Assinaturas
+    {donation.donor}
+    ---------------------    
+    {donation.institution}
+    ---------------------"""
+    canvas = Canvas(f'contracts/contract_{donation.id}.pdf', pagesize=A4)
+    text_object = canvas.beginText()
+    text_object.setTextOrigin(100, 750)
+    text_object.setFont('Helvetica', 12)
+    for line in contract_text.split('\n'):
+        text_object.textLine(line)
+    canvas.drawText(text_object)
+    canvas.save()
+    #TODO -> Send to AWS S3
+    return
+
+
+def collect_fees(donation_value: float) -> float:
+    if donation_value <= 0 or type(donation_value) != float:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f'Invalid donation value: {donation_value}'
+        )
+    return donation_value * (1-(TAX + FEES))
+
+
+def generate_invoice(donation: DonationResponse) -> None:
+    invoice_text = f"""
+    Nota nº: {donation.id}
+    Doador: {donation.donor}
+    Instituição: {donation.institution}
+    {donation.date}
+    Valor: R$ {donation.amount}
+    Impostos: R$ {donation.amount * TAX} (4%)
+    Taxas GiveLink: R$ {(donation.amount * FEES):.2f} (1,99%)"""
+    canvas = Canvas(f'invoices/invoice_{donation.id}.pdf', pagesize=A4)
+    text_object = canvas.beginText()
+    text_object.setTextOrigin(100, 750)
+    text_object.setFont('Helvetica', 12)
+    for line in invoice_text.split('\n'):
+        text_object.textLine(line)
+    canvas.drawText(text_object)
+    canvas.save()
+    #TODO -> Send to AWS S3
+    return
+
+
+def get_contract(donation_id: int) -> Canvas:
+    #TODO -> Get contract from AWS S3
+    ...
+
+
+def get_invoice(donation_id: int) -> Canvas:
+    #TODO -> Get invoice from AWS S3
+    ...
 
 
 def create_donation_service(
@@ -27,8 +96,9 @@ def create_donation_service(
             InstitutionModel.id == donation.institution_id
         )
     )
+    donation_amount = collect_fees(donation.amount)
     donation_db = DonationModel(
-        amount = donation.amount,
+        amount = donation_amount,
         payment_method = donation.payment_method,
         donor_id = donation.donor_id,
         institution_id = donation.institution_id
@@ -36,7 +106,7 @@ def create_donation_service(
     session.add(donation_db)
     session.commit()
     session.refresh(donation_db)
-    return DonationResponse(
+    donation_response = DonationResponse(
         id = donation_db.id,
         amount = donation.amount,
         payment_method = donation.payment_method,
@@ -44,6 +114,9 @@ def create_donation_service(
         donor = donor.name,
         institution = institution.name
     )
+    generate_contract(donation_response)
+    generate_invoice(donation_response)
+    return donation_response
 
 
 def get_donations_service(
@@ -51,31 +124,52 @@ def get_donations_service(
     institution_id: int,
     session: Session,
     offset: int,
-    limit: int
+    limit: int,
+    max_amount: float = None,
+    min_amount: float = None,
+    min_date: int = None,
+    max_date: int = None,
+    payment_method: str = None
 ) -> list[DonationResponse]:
     if offset < 0 or limit < 0 or \
         type(offset) != int or type(limit) != int:
         raise ValueError('Invalid params.')
-    institution = session.scalar(
-        select(InstitutionModel).where(
-            InstitutionModel.id == institution_id
-        )
-    )
     user = session.scalar(
-        select(UserModel).where(
-            UserModel.id == user_id
+            select(UserModel).where(
+                UserModel.id == user_id
+            )
         )
-    )
-    if institution.user_id != user_id and user.username != 'admin':
-        raise HTTPException(
-            status_code=HTTPStatus.Forbidden,
-            detail='User not allowed to access this resource.'
+    if user.username == 'admin':
+        query = select(DonationModel)
+    else:
+        institution = session.scalar(
+            select(InstitutionModel).where(
+                InstitutionModel.id == institution_id
+            )
         )
-    donations = session.scalars(
-        select(DonationModel).offset(offset).limit(limit)
-    ).all()
+        if institution.user_id != user_id:
+            raise HTTPException(
+                status_code=HTTPStatus.Forbidden,
+                detail='User not allowed to access this resource.'
+            )
+        query = select(DonationModel).where(
+            DonationModel.institution_id == institution_id
+        )
+    if min_amount is not None:
+        query = query.where(DonationModel.amount >= min_amount)
+    if max_amount is not None:
+        query = query.where(DonationModel.amount <= max_amount)
+    if min_date is not None:
+        query = query.where(DonationModel.date >= min_date)
+    if max_date is not None:
+        query = query.where(DonationModel.date <= max_date)
+    if payment_method is not None:
+        query = query.where(DonationModel.payment_method == payment_method)
+    query = query.offset(offset).limit(limit)
+    donations = session.scalars(query).all()
     return [
-        cast_to_donation_response(donation, session) for donation in donations 
+        cast_to_donation_response(donation, session) 
+        for donation in donations 
     ]
 
 

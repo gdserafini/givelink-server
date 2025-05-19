@@ -7,7 +7,7 @@ import re
 class Institution(BaseModel):
     name: str
     sector: str
-    avatar_url: Optional[str]
+    avatar_url: Optional[str] = None
     cnpj: str
 
     @field_validator('name')
@@ -29,7 +29,7 @@ class InstitutionResponse(BaseModel):
     id: int
     name: str
     sector: str
-    avatar_url: Optional[str]
+    avatar_url: Optional[str] = None
     cnpj: str
     username: str
     model_config = ConfigDict(
