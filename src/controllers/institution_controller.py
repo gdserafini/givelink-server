@@ -51,11 +51,13 @@ def create_institution(
 )
 def get_donations_logged(
     session: T_Session,
-    current_user: T_CurrentUser
+    current_user: T_CurrentUser,
+    sector: str = None
 ) -> list[InstitutionResponse]:
     institutions = get_institutions_logged_service(
         session, 
-        current_user.id
+        current_user.id,
+        sector
     )
     return {
         'institutions': institutions
@@ -75,9 +77,15 @@ def get_donations_logged(
 def get_donors(
     session: T_Session, 
     offset: int = 0, 
-    limit: int = 100    
+    limit: int = 100,
+    sector: str = None
 ) -> list[InstitutionResponse]:
-    institutions = get_institutions_service(session, offset, limit)
+    institutions = get_institutions_service(
+        session, 
+        offset, 
+        limit,
+        sector
+    )
     return {
         'institutions': institutions
     }

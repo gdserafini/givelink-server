@@ -124,31 +124,52 @@ def get_donations_service(
     institution_id: int,
     session: Session,
     offset: int,
-    limit: int
+    limit: int,
+    max_amount: float = None,
+    min_amount: float = None,
+    min_date: int = None,
+    max_date: int = None,
+    payment_method: str = None
 ) -> list[DonationResponse]:
     if offset < 0 or limit < 0 or \
         type(offset) != int or type(limit) != int:
         raise ValueError('Invalid params.')
-    institution = session.scalar(
-        select(InstitutionModel).where(
-            InstitutionModel.id == institution_id
-        )
-    )
     user = session.scalar(
-        select(UserModel).where(
-            UserModel.id == user_id
+            select(UserModel).where(
+                UserModel.id == user_id
+            )
         )
-    )
-    if institution.user_id != user_id and user.username != 'admin':
-        raise HTTPException(
-            status_code=HTTPStatus.Forbidden,
-            detail='User not allowed to access this resource.'
+    if user.username == 'admin':
+        query = select(DonationModel)
+    else:
+        institution = session.scalar(
+            select(InstitutionModel).where(
+                InstitutionModel.id == institution_id
+            )
         )
-    donations = session.scalars(
-        select(DonationModel).offset(offset).limit(limit)
-    ).all()
+        if institution.user_id != user_id:
+            raise HTTPException(
+                status_code=HTTPStatus.Forbidden,
+                detail='User not allowed to access this resource.'
+            )
+        query = select(DonationModel).where(
+            DonationModel.institution_id == institution_id
+        )
+    if min_amount is not None:
+        query = query.where(DonationModel.amount >= min_amount)
+    if max_amount is not None:
+        query = query.where(DonationModel.amount <= max_amount)
+    if min_date is not None:
+        query = query.where(DonationModel.date >= min_date)
+    if max_date is not None:
+        query = query.where(DonationModel.date <= max_date)
+    if payment_method is not None:
+        query = query.where(DonationModel.payment_method == payment_method)
+    query = query.offset(offset).limit(limit)
+    donations = session.scalars(query).all()
     return [
-        cast_to_donation_response(donation, session) for donation in donations 
+        cast_to_donation_response(donation, session) 
+        for donation in donations 
     ]
 
 
