@@ -6,7 +6,7 @@ from src.utils.types import T_CurrentUser, T_Session
 from src.service.donation_service import create_donation_service, get_donations_service, delete_donation_by_id_service
 from src.models.user_model import Message
 from src.utils.validations import is_admin, authorize_delete_donation_operation
-from src.models.exceptions import ForbiddenException
+from src.utils.logging import logger
 
 
 router = APIRouter(prefix='/donation', tags=['Donations'])
@@ -28,6 +28,7 @@ def create_donation(
     current_user: T_CurrentUser,
     donation: Donation
 ) -> DonationResponse:
+    logger.info('Creating donation entity')
     created_donation = create_donation_service(
         donation, session, current_user
     )
@@ -56,6 +57,7 @@ def get_donations(
     max_date: int = None,
     payment_method: str = None   
 ) -> list[DonationResponse]:
+    logger.info('Getting filtered donations')
     donations = get_donations_service(
         current_user.id, 
         institution_id, 
@@ -93,4 +95,5 @@ def delete_donation_by_id(
             donation_id, 
             current_user.id
         )
+    logger.info('Deleting donation entity')
     return delete_donation_by_id_service(donation_id, session)

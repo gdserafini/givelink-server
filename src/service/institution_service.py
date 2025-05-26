@@ -6,6 +6,7 @@ from src.models.exceptions import (
     InstitutionAlreadyExistsException, InvalidFormException, InstitutionNotFoundException
 )
 from src.models.institution_model import Institution, InstitutionResponse, InstitutionUpdate
+from src.utils.logging import logger
 
 
 def get_institutions_logged_service(
@@ -33,6 +34,7 @@ def get_institutions_logged_service(
             (InstitutionModel.sector == sector)
         )
     ).all()
+    logger.info('Institutions successfully finded')
     return [
         cast_to_institution_response(inst, session) 
         for inst in institutions
@@ -69,6 +71,7 @@ def create_institution_service(
     session.add(institution_db)
     session.commit()
     session.refresh(institution_db)
+    logger.info('Institution successfully created')
     return InstitutionResponse(
         id=institution_db.id,
         name=institution_db.name,
@@ -92,6 +95,7 @@ def get_institutions_service(
         query = query.where(InstitutionModel.sector == sector)
     query = query.offset(offset).limit(limit)
     institutions = session.scalars(query).all()
+    logger.info('Institutions successfully finded - By filters')
     return [
         cast_to_institution_response(institution, session)
         for institution in institutions
@@ -129,6 +133,7 @@ def get_institution_by_id_service(
     )
     if not institution:
         raise InstitutionNotFoundException(institution_id=institution_id)
+    logger.info('Institution successfully finded')
     if cast: return cast_to_institution_response(institution, session)
     else: return institution
     
@@ -140,6 +145,7 @@ def delete_institution_by_id_service(
     institution = get_institution_by_id_service(session, id, False)
     session.delete(institution)
     session.commit()
+    logger.info('Institution successfully deleted')
     return Message(
         message=f'Institution: {id} deleted successfuly.'
     )
@@ -156,4 +162,5 @@ def update_institution_service(
     if institution_data.sector: institution.sector = institution_data.sector
     session.commit()
     session.refresh(institution)
+    logger.info('Institution successfully updated')
     return cast_to_institution_response(institution, session)

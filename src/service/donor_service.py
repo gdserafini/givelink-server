@@ -6,6 +6,7 @@ from sqlalchemy import select
 from src.models.exceptions import (
     DonorAlreadyExistsException, InvalidFormException, DonorNotFoundException
 )
+from src.utils.logging import logger
 
 
 def create_donor_service(
@@ -37,6 +38,7 @@ def create_donor_service(
     session.add(donor_db)
     session.commit()
     session.refresh(donor_db)
+    logger.info('Donor successfully created')
     return DonorResponse(
         id=donor_db.id,
         name=donor_db.name,
@@ -57,6 +59,7 @@ def get_donors_service(
     donors = session.scalars(
         select(DonorModel).offset(offset).limit(limit)
     ).all()
+    logger.info('Donor successfully finded')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]
@@ -92,6 +95,7 @@ def get_donor_by_id_service(
     )
     if not donor:
         raise DonorNotFoundException(donor_id=donor_id)
+    logger.info('Donation successfully finded by id')
     if cast: return cast_to_donor_response(donor, session)
     else: return donor    
 
@@ -103,6 +107,7 @@ def delete_donor_by_id_service(
     donor = get_donor_by_id_service(session, id, False)
     session.delete(donor)
     session.commit()
+    logger.info('Donation successfully deleted')
     return Message(
         message=f'Donor: {id} deleted successfuly.'
     )
@@ -118,6 +123,7 @@ def update_donor_service(
     if donor_data.avatar_url: donor.avatar_url = donor_data.avatar_url
     session.commit()
     session.refresh(donor)
+    logger.info('Donation successfully updated')
     return cast_to_donor_response(donor, session)
 
 
@@ -131,6 +137,7 @@ def get_donors_logged_service(
             DonorModel.user_id == user_id
         )
     ).all()
+    logger.info('Donation successfully finded - logged user')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]
