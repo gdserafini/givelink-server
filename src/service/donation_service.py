@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from http import HTTPStatus
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen.canvas import Canvas
+from src.utils.logging import logger
 
 
 TAX = 0.04
@@ -33,6 +34,7 @@ def generate_contract(donation: DonationResponse) -> None:
     canvas.drawText(text_object)
     canvas.save()
     #TODO -> Send to AWS S3
+    logger.info('Report successfully created and saved')
     return
 
 
@@ -42,6 +44,7 @@ def collect_fees(donation_value: float) -> float:
             status_code=HTTPStatus.BAD_REQUEST,
             detail=f'Invalid donation value: {donation_value}'
         )
+    logger.info('Fees collected')
     return donation_value * (1-(TAX + FEES))
 
 
@@ -63,6 +66,7 @@ def generate_invoice(donation: DonationResponse) -> None:
     canvas.drawText(text_object)
     canvas.save()
     #TODO -> Send to AWS S3
+    logger.info('Invoice successfully created and saved')
     return
 
 
@@ -114,6 +118,7 @@ def create_donation_service(
         donor = donor.name,
         institution = institution.name
     )
+    logger.info('Donation successfully created')
     generate_contract(donation_response)
     generate_invoice(donation_response)
     return donation_response
@@ -167,6 +172,7 @@ def get_donations_service(
         query = query.where(DonationModel.payment_method == payment_method)
     query = query.offset(offset).limit(limit)
     donations = session.scalars(query).all()
+    logger.info('Donation successfully finded by filters')
     return [
         cast_to_donation_response(donation, session) 
         for donation in donations 
@@ -212,6 +218,7 @@ def get_donation_by_id_service(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f'Donation {donation_id} not found.'
         )
+    logger.info('Donation successfully finded by id')
     if cast: return cast_to_donation_response(donation, session)
     else: return donation  
 
@@ -223,6 +230,7 @@ def delete_donation_by_id_service(
     donation = get_donation_by_id_service(session, id, False)
     session.delete(donation)
     session.commit()
+    logger.info('Donation successfully deleted')
     return Message(
         message=f'Donation: {id} deleted successfuly.'
     )

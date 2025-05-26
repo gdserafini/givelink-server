@@ -6,6 +6,7 @@ from src.models.exceptions import UserAlreadyExistsException, UserNotFoundExcept
 from src.service.security import get_password_hash
 from src.models.role_model import RoleIdEnum
 from src.utils.validations import validate_user_data
+from src.utils.logging import logger
 
 
 def create_user_service(user: User, session: Session) -> UserResponse:
@@ -31,6 +32,7 @@ def create_user_service(user: User, session: Session) -> UserResponse:
     session.add(user_db)
     session.commit()
     session.refresh(user_db)
+    logger.info('User successfully created')
     return cast_to_user_response(user_db, session)
 
 
@@ -58,6 +60,7 @@ def get_all_users_service(
     users = session.scalars(
         select(UserModel).offset(offset).limit(limit)
     ).all()
+    logger.info('Users successfully finded')
     return [
         cast_to_user_response(user, session) for user in users
     ]
@@ -71,6 +74,7 @@ def get_user_by_id_service(
     )
     if not user:
         raise UserNotFoundException(user_id=user_id)
+    logger.info('User successfully finded - By id')
     if cast: return cast_to_user_response(user, session)
     else: return user
 
@@ -81,6 +85,7 @@ def delete_user_by_id_service(
     user = get_user_by_id_service(user_id, session, False)
     session.delete(user)
     session.commit()
+    logger.info('User successfully deleted - By id')
     return Message(
         message=f'User id={user_id} deleted successfully'
     )
@@ -105,4 +110,5 @@ def update_user_service(
     if user.avatar_url: user_db.avatar_url = user.avatar_url
     session.commit()
     session.refresh(user_db)
+    logger.info('User successfully updated')
     return cast_to_user_response(user_db, session)

@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from src.models.token_model import Token
 from http import HTTPStatus
 from jwt.exceptions import ExpiredSignatureError, PyJWTError
+from src.utils.logging import logger
 
 
 def login_service(
@@ -24,6 +25,7 @@ def login_service(
         )
     else:
         token_jwt = create_access_token({'sub': user.email})
+        logger.info('Token JWT successfully created')
         return Token(
             token_type='Bearer',
             access_token=token_jwt
@@ -35,6 +37,7 @@ def refresh_access_token_service(user: UserModel) -> Token:
         new_access_token = create_access_token(
             data={'sub': user.email}
         )
+        logger.info('Token JWT successfully refreshed')
         return Token(
             token_type='Bearer',
             access_token=new_access_token
