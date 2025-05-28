@@ -59,7 +59,7 @@ def get_donors_service(
     donors = session.scalars(
         select(DonorModel).offset(offset).limit(limit)
     ).all()
-    logger.info('Donor successfully finded')
+    logger.info('Donor successfully found')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]
@@ -95,7 +95,7 @@ def get_donor_by_id_service(
     )
     if not donor:
         raise DonorNotFoundException(donor_id=donor_id)
-    logger.info('Donation successfully finded by id')
+    logger.info('Donation successfully found by id')
     if cast: return cast_to_donor_response(donor, session)
     else: return donor    
 
@@ -137,7 +137,7 @@ def get_donors_logged_service(
             DonorModel.user_id == user_id
         )
     ).all()
-    logger.info('Donation successfully finded - logged user')
+    logger.info('Donation successfully found - logged user')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]

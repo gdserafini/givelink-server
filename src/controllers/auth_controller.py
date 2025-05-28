@@ -23,8 +23,8 @@ router = APIRouter(prefix='/auth', tags=['auth'])
     },
     description='Get a JWT token to authenticate using email and password.'
 )
-def login(session: T_Session,form_data: T_OAuth2From) -> Token:
-    logger.info('Authenticating - JWT token')
+def login(session: T_Session, form_data: T_OAuth2From) -> Token:
+    logger.info(f'auth_controller.py - OAuth2Form recived - {form_data.username}')
     jwt_token = login_service(session, form_data)
     return jwt_token
 
@@ -43,6 +43,5 @@ def login(session: T_Session,form_data: T_OAuth2From) -> Token:
     description='Get a refreshed JWT token.'
 )
 def refresh_access_token(user: T_CurrentUser) -> Token:
-    logger.info('Refreshing token - JWT')
     refreshed_jwt_token = refresh_access_token_service(user)
     return refreshed_jwt_token

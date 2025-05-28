@@ -172,7 +172,7 @@ def get_donations_service(
         query = query.where(DonationModel.payment_method == payment_method)
     query = query.offset(offset).limit(limit)
     donations = session.scalars(query).all()
-    logger.info('Donation successfully finded by filters')
+    logger.info('Donation successfully found by filters')
     return [
         cast_to_donation_response(donation, session) 
         for donation in donations 
@@ -218,7 +218,7 @@ def get_donation_by_id_service(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f'Donation {donation_id} not found.'
         )
-    logger.info('Donation successfully finded by id')
+    logger.info('Donation successfully found by id')
     if cast: return cast_to_donation_response(donation, session)
     else: return donation  
 

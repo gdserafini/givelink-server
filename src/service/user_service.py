@@ -32,7 +32,7 @@ def create_user_service(user: User, session: Session) -> UserResponse:
     session.add(user_db)
     session.commit()
     session.refresh(user_db)
-    logger.info('User successfully created')
+    logger.info(f'user_service.py - User successfully created - {user_db.id}')
     return cast_to_user_response(user_db, session)
 
 
@@ -56,11 +56,12 @@ def get_all_users_service(
 ) -> list[UserResponse]:
     if offset < 0 or limit < 0 or \
         type(offset) != int or type(limit) != int:
+        logger.info(f'user_service.py - Error: Invalid params')
         raise ValueError('Invalid params.')
     users = session.scalars(
         select(UserModel).offset(offset).limit(limit)
     ).all()
-    logger.info('Users successfully finded')
+    logger.info(f'user_service.py - Users successfully found - list')
     return [
         cast_to_user_response(user, session) for user in users
     ]
@@ -73,8 +74,9 @@ def get_user_by_id_service(
         select(UserModel).where(UserModel.id == user_id)
     )
     if not user:
+        logger.info(f'user_service.py - Error: User not found - {user_id}')
         raise UserNotFoundException(user_id=user_id)
-    logger.info('User successfully finded - By id')
+    logger.info(f'User successfully found - {user_id}')
     if cast: return cast_to_user_response(user, session)
     else: return user
 
@@ -85,7 +87,7 @@ def delete_user_by_id_service(
     user = get_user_by_id_service(user_id, session, False)
     session.delete(user)
     session.commit()
-    logger.info('User successfully deleted - By id')
+    logger.info(f'user_service.py - User successfully deleted - {user_id}')
     return Message(
         message=f'User id={user_id} deleted successfully'
     )
@@ -103,6 +105,7 @@ def update_user_service(
             )
         )
         if result:
+            logger.info(f'user_service.py - Error: Username in use - {user.username}')
             raise UserAlreadyExistsException(detail='Username already in use.')
         else:
             user_db.username = user.username
@@ -110,5 +113,5 @@ def update_user_service(
     if user.avatar_url: user_db.avatar_url = user.avatar_url
     session.commit()
     session.refresh(user_db)
-    logger.info('User successfully updated')
+    logger.info(f'user_service.py - User successfully updated - {user_id}')
     return cast_to_user_response(user_db, session)

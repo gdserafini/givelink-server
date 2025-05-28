@@ -5,7 +5,7 @@ from src.models.db_schemas import UserModel, RolesModel, DonorModel, Institution
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.models.role_model import RoleEnum
-from src.models.donor_model import Donor
+from src.utils.logging import logger
 
 
 def authorize_user(current_id: int, id: int) -> None:
@@ -13,6 +13,8 @@ def authorize_user(current_id: int, id: int) -> None:
         raise ForbiddenException(
             detail='User not allowed to access/use this resource.'
         )
+    logger.info(f'validations.py - User authorized - {current_id}')
+    
 
 
 def authorize_donor_operation(
@@ -29,6 +31,9 @@ def authorize_donor_operation(
         raise ForbiddenException(
             detail='User not allowed to access/use/delete this resource.'
         )
+    logger.info(
+        f'validations.py - User authorized for donor operation - {current_id} - {donor_id}'
+    )
     
 
 def authorize_institution_operation(
@@ -45,11 +50,15 @@ def authorize_institution_operation(
         raise ForbiddenException(
             detail='User not allowed to access/use/delete this resource.'
         )
+    logger.info(
+        f'validations.py - User authorized for institution operation - {current_id} - {institution_id}'
+    )
+
 
 
 def validate_user_data(user: User):
     if user.username:
-        if not re.fullmatch(r'[a-z]{3,255}', user.username):
+        if not re.fullmatch(r'[a-zA-Z]{3,255}', user.username):
             raise InvalidDataException(invalid_data=user.username)
     if user.password:
         if len(user.password) < 8 or len(user.password) > 255\
@@ -57,6 +66,9 @@ def validate_user_data(user: User):
                 or not re.search(r"[0-9]", user.password)\
                 or not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=\[\]\\\/]", user.password):
             raise InvalidDataException(invalid_data='password')
+    logger.info(
+        f'validations.py - Valid user data - {user.username}'
+    )
 
 
 def is_admin(user: UserModel, session: Session) -> bool:
@@ -64,6 +76,9 @@ def is_admin(user: UserModel, session: Session) -> bool:
         select(RolesModel).where(
             RolesModel.id == user.role_id
         )
+    )
+    logger.info(
+        f'validations.py - User authorized (ADMIN) - {user.username}'
     )
     return role.role == RoleEnum.ADMIN.value
 
@@ -92,3 +107,6 @@ def authorize_delete_donation_operation(
         raise ForbiddenException(
             detail='User not allowed to access this resource.'
         )
+    logger.info(
+        f'validations.py - User authorized for donation operation - {user_id} - {donation_id}'
+    )

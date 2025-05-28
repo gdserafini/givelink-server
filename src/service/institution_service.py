@@ -34,7 +34,7 @@ def get_institutions_logged_service(
             (InstitutionModel.sector == sector)
         )
     ).all()
-    logger.info('Institutions successfully finded')
+    logger.info('Institutions successfully found')
     return [
         cast_to_institution_response(inst, session) 
         for inst in institutions
@@ -95,7 +95,7 @@ def get_institutions_service(
         query = query.where(InstitutionModel.sector == sector)
     query = query.offset(offset).limit(limit)
     institutions = session.scalars(query).all()
-    logger.info('Institutions successfully finded - By filters')
+    logger.info('Institutions successfully found - By filters')
     return [
         cast_to_institution_response(institution, session)
         for institution in institutions
@@ -133,7 +133,7 @@ def get_institution_by_id_service(
     )
     if not institution:
         raise InstitutionNotFoundException(institution_id=institution_id)
-    logger.info('Institution successfully finded')
+    logger.info('Institution successfully found')
     if cast: return cast_to_institution_response(institution, session)
     else: return institution
     

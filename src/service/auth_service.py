@@ -19,13 +19,14 @@ def login_service(
     )
     if not user or \
             not verify_password(form_data.password, user.password):
+        logger.info(f'auth_service.py - Error: Invalid credential - {form_data.username}')
         raise InvalidLoginException(
             detail='Invalid credentials.',
             status_code=HTTPStatus.BAD_REQUEST
         )
     else:
         token_jwt = create_access_token({'sub': user.email})
-        logger.info('Token JWT successfully created')
+        logger.info(f'auth_service.py - Token JWT created - {form_data.username}')
         return Token(
             token_type='Bearer',
             access_token=token_jwt
@@ -37,12 +38,14 @@ def refresh_access_token_service(user: UserModel) -> Token:
         new_access_token = create_access_token(
             data={'sub': user.email}
         )
-        logger.info('Token JWT successfully refreshed')
+        logger.info(f'auth_service.py - Token JWT refresehd - {user.username}')
         return Token(
             token_type='Bearer',
             access_token=new_access_token
         )
     except ExpiredSignatureError:
+        logger.info(f'auth_service.py - Error: Expired token - {user.username}')
         raise InvalidLoginException(detail='Expired token.')
     except PyJWTError:
+        logger.info(f'auth_service.py - Error: Invalid token - {user.username}')
         raise InvalidLoginException(detail='Invalid token.')

@@ -28,7 +28,7 @@ router = APIRouter(prefix='/user', tags=['users'])
     }
 )
 def create_user(user: User, session: T_Session) -> UserResponse:
-    logger.info('Creating user entity')
+    logger.info(f'user_controller.py - User data recived - {user.username}')
     created_user = create_user_service(user, session)
     return created_user
 
@@ -51,7 +51,6 @@ def get_users(
 ) -> list[UserResponse]:
     if not is_admin(current_user, session):
         raise ForbiddenException(detail='User not allowed to access this resource')
-    logger.info('Getting users')
     users = get_all_users_service(offset, limit, session)
     return {'users': users}
 
@@ -73,7 +72,6 @@ def get_user_by_id(
 ) -> UserResponse:
     if not is_admin(current_user, session):
         authorize_user(current_user.id, user_id)
-    logger.info('Getting user - By id')
     return get_user_by_id_service(user_id, session)
 
 
@@ -98,7 +96,6 @@ def delete_user_by_id(
     user = get_user_by_id_service(user_id, session)
     if user_is_admin and user.id == current_user.id:
         raise ForbiddenException(detail='It is not possible to delete the admin user.')
-    logger.info('Deleting user entity')
     return delete_user_by_id_service(user_id, session)
 
 
@@ -119,6 +116,5 @@ def update_user(
     current_user: T_CurrentUser
 ) -> UserResponse:
     if not is_admin(current_user, session):
-        authorize_user(current_user.id, user_id)
-    logger.info('Deleting user entity')    
+        authorize_user(current_user.id, user_id)  
     return update_user_service(user_id, user_data, session)
