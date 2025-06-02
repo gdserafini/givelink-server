@@ -32,7 +32,6 @@ def get_donations_logged(
     session: T_Session,
     current_user: T_CurrentUser
 ) -> list[DonorResponse]:
-    logger.info('Getting donors - Logged user')
     donations = get_donors_logged_service(
         session, 
         current_user.id
@@ -58,7 +57,7 @@ def create_donor(
     current_user: T_CurrentUser,
     donor: Donor
 ) -> DonorResponse:
-    logger.info('Creating donor entity')
+    logger.info(f'dono_controller.py - Donor data received - {donor.name}')
     created_donor = create_donor_service(
         donor, current_user, session
     )
@@ -80,7 +79,6 @@ def get_donors(
     offset: int = 0, 
     limit: int = 100    
 ) -> list[DonorResponse]:
-    logger.info('Getting donors')
     donors = get_donors_service(session, offset, limit)
     return {'donors': donors}
 
@@ -99,7 +97,6 @@ def get_donors(
     donor_id: int,
     session: T_Session  
 ) -> DonorResponse:
-    logger.info('Getting donor - By id')
     return get_donor_by_id_service(session, donor_id)
 
 
@@ -122,7 +119,6 @@ def delete_donor_by_id(
     user_is_admin = is_admin(current_user, session)
     if not user_is_admin:
         authorize_donor_operation(current_user.id, donor_id, session)
-    logger.info('Deleting donor - By id - Logged user')
     return delete_donor_by_id_service(donor_id, session)
     
 
@@ -145,5 +141,4 @@ def update_donor(
 ) -> DonorResponse:
     if not is_admin(current_user, session):
         authorize_donor_operation(current_user.id, donor_id, session)
-    logger.info('Updating donor - Logged user')
     return update_donor_service(donor_id, donor_data, session)

@@ -37,7 +37,7 @@ def create_institution(
     created_institution = create_institution_service(
         institution, current_user, session
     )
-    logger.info('Creating institution entity')
+    logger.info(f'institution_controller.py - Instituition data received - {institution.name}')
     return created_institution
 
 
@@ -56,7 +56,6 @@ def get_institutions_logged(
     current_user: T_CurrentUser,
     sector: str = None
 ) -> list[InstitutionResponse]:
-    logger.info('Getting institutions - Logged user')
     institutions = get_institutions_logged_service(
         session, 
         current_user.id,
@@ -83,7 +82,6 @@ def get_institutions(
     limit: int = 100,
     sector: str = None
 ) -> list[InstitutionResponse]:
-    logger.info('Get institutions - Public')
     institutions = get_institutions_service(
         session, 
         offset, 
@@ -109,7 +107,6 @@ def get_institution(
     institution_id: int,
     session: T_Session  
 ) -> InstitutionResponse:
-    logger.info('Get institution - By id')
     return get_institution_by_id_service(session, institution_id)
 
 
@@ -132,7 +129,6 @@ def delete_institution_by_id(
     user_is_admin = is_admin(current_user, session)
     if not user_is_admin:
         authorize_institution_operation(current_user.id, institution_id, session)
-    logger.info('Deleting institution entity - By id')
     return delete_institution_by_id_service(institution_id, session)
 
 
@@ -155,5 +151,5 @@ def update_donor(
 ) -> InstitutionResponse:
     if not is_admin(current_user, session):
         authorize_institution_operation(current_user.id, institution_id, session)
-    logger.info('Updating institution entity - By id - Logged user')
+    logger.info('institution_controller.py - Donor data received (update)')
     return update_institution_service(institution_id, institution_data, session)

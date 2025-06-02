@@ -117,4 +117,5 @@ def update_user(
 ) -> UserResponse:
     if not is_admin(current_user, session):
         authorize_user(current_user.id, user_id)  
+    logger.info(f'user_controller.py - User data received (update)')
     return update_user_service(user_id, user_data, session)

@@ -28,7 +28,7 @@ def create_donation(
     current_user: T_CurrentUser,
     donation: Donation
 ) -> DonationResponse:
-    logger.info('Creating donation entity')
+    logger.info(f'donation_controller.py - Donation data received - R$ {donation.amount:.2f}')
     created_donation = create_donation_service(
         donation, session, current_user
     )
@@ -57,7 +57,6 @@ def get_donations(
     max_date: int = None,
     payment_method: str = None   
 ) -> list[DonationResponse]:
-    logger.info('Getting filtered donations')
     donations = get_donations_service(
         current_user.id, 
         institution_id, 
@@ -95,5 +94,4 @@ def delete_donation_by_id(
             donation_id, 
             current_user.id
         )
-    logger.info('Deleting donation entity')
     return delete_donation_by_id_service(donation_id, session)
