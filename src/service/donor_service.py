@@ -38,7 +38,7 @@ def create_donor_service(
     session.add(donor_db)
     session.commit()
     session.refresh(donor_db)
-    logger.info('Donor successfully created')
+    logger.info(f'donor_service.py - Donor successfully created - {donor_db.id}')
     return DonorResponse(
         id=donor_db.id,
         name=donor_db.name,
@@ -59,7 +59,7 @@ def get_donors_service(
     donors = session.scalars(
         select(DonorModel).offset(offset).limit(limit)
     ).all()
-    logger.info('Donor successfully found')
+    logger.info(f'donor_service.py - Donors successfully found')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]
@@ -95,7 +95,7 @@ def get_donor_by_id_service(
     )
     if not donor:
         raise DonorNotFoundException(donor_id=donor_id)
-    logger.info('Donation successfully found by id')
+    logger.info(f'donor_service.py - Donor successfully found by id - {donor_id}')
     if cast: return cast_to_donor_response(donor, session)
     else: return donor    
 
@@ -107,7 +107,7 @@ def delete_donor_by_id_service(
     donor = get_donor_by_id_service(session, id, False)
     session.delete(donor)
     session.commit()
-    logger.info('Donation successfully deleted')
+    logger.info(f'donor_service.py - Donor successfully deleted - {id}')
     return Message(
         message=f'Donor: {id} deleted successfuly.'
     )
@@ -123,7 +123,7 @@ def update_donor_service(
     if donor_data.avatar_url: donor.avatar_url = donor_data.avatar_url
     session.commit()
     session.refresh(donor)
-    logger.info('Donation successfully updated')
+    logger.info(f'donor_service.py - Donor successfully updated - {donor_id}')
     return cast_to_donor_response(donor, session)
 
 
@@ -137,7 +137,7 @@ def get_donors_logged_service(
             DonorModel.user_id == user_id
         )
     ).all()
-    logger.info('Donation successfully found - logged user')
+    logger.info(f'donor_service.py - Donors successfully found - logged user - {user_id}')
     return [
         cast_to_donor_response(donor, session) for donor in donors
     ]

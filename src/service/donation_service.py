@@ -34,7 +34,7 @@ def generate_contract(donation: DonationResponse) -> None:
     canvas.drawText(text_object)
     canvas.save()
     #TODO -> Send to AWS S3
-    logger.info('Report successfully created and saved')
+    logger.info(f'donation_service.py - Report successfully created and saved - {donation.id}')
     return
 
 
@@ -44,7 +44,7 @@ def collect_fees(donation_value: float) -> float:
             status_code=HTTPStatus.BAD_REQUEST,
             detail=f'Invalid donation value: {donation_value}'
         )
-    logger.info('Fees collected')
+    logger.info(f'donation_service.py - Fees collected - R$ {donation_value:.2f}')
     return donation_value * (1-(TAX + FEES))
 
 
@@ -118,7 +118,7 @@ def create_donation_service(
         donor = donor.name,
         institution = institution.name
     )
-    logger.info('Donation successfully created')
+    logger.info(f'donation_service.py - Donation successfully created - {donation.id}')
     generate_contract(donation_response)
     generate_invoice(donation_response)
     return donation_response
@@ -172,7 +172,7 @@ def get_donations_service(
         query = query.where(DonationModel.payment_method == payment_method)
     query = query.offset(offset).limit(limit)
     donations = session.scalars(query).all()
-    logger.info('Donation successfully found by filters')
+    logger.info(f'donation_service.py - Donations successfully found by filters')
     return [
         cast_to_donation_response(donation, session) 
         for donation in donations 
@@ -218,7 +218,7 @@ def get_donation_by_id_service(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f'Donation {donation_id} not found.'
         )
-    logger.info('Donation successfully found by id')
+    logger.info(f'doantion_service.py - Donation successfully found by id - {donation.id}')
     if cast: return cast_to_donation_response(donation, session)
     else: return donation  
 
@@ -230,7 +230,7 @@ def delete_donation_by_id_service(
     donation = get_donation_by_id_service(session, id, False)
     session.delete(donation)
     session.commit()
-    logger.info('Donation successfully deleted')
+    logger.info(f'donation_service.py - Donation successfully deleted - {id}')
     return Message(
         message=f'Donation: {id} deleted successfuly.'
     )
