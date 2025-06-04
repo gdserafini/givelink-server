@@ -34,7 +34,7 @@ def generate_contract(donation: DonationResponse) -> None:
     canvas.drawText(text_object)
     canvas.save()
     #TODO -> Send to AWS S3
-    logger.info(f'donation_service.py - Report successfully created and saved - {donation.id}')
+    logger.info(f'donation_service.py - Report successfully created and saved')
     return
 
 
@@ -118,7 +118,7 @@ def create_donation_service(
         donor = donor.name,
         institution = institution.name
     )
-    logger.info(f'donation_service.py - Donation successfully created - {donation.id}')
+    logger.info(f'donation_service.py - Donation successfully created - {donation_response.id}')
     generate_contract(donation_response)
     generate_invoice(donation_response)
     return donation_response
@@ -218,7 +218,7 @@ def get_donation_by_id_service(
             status_code=HTTPStatus.NOT_FOUND,
             detail=f'Donation {donation_id} not found.'
         )
-    logger.info(f'doantion_service.py - Donation successfully found by id - {donation.id}')
+    logger.info(f'doantion_service.py - Donation successfully found by id - {donation_id}')
     if cast: return cast_to_donation_response(donation, session)
     else: return donation  
 
