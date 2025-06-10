@@ -66,7 +66,8 @@ def create_institution_service(
         avatar_url=institution.avatar_url,
         cnpj=institution.cnpj,
         user_id=user_db.id,
-        sector=institution.sector
+        sector=institution.sector,
+        description=institution.description
     )    
     session.add(institution_db)
     session.commit()
@@ -78,7 +79,8 @@ def create_institution_service(
         avatar_url=institution_db.avatar_url,
         cnpj=institution_db.cnpj,
         username=user_db.username,
-        sector=institution_db.sector
+        sector=institution_db.sector,
+        description=institution.description
     )
 
 
@@ -117,7 +119,8 @@ def cast_to_institution_response(
         avatar_url=institution.avatar_url,
         cnpj=institution.cnpj,
         username=institution_username,
-        sector=institution.sector
+        sector=institution.sector,
+        description=institution.description if institution.description else ''
     )
 
 
@@ -160,6 +163,7 @@ def update_institution_service(
     if institution_data.name: institution.name = institution_data.name
     if institution_data.avatar_url: institution.avatar_url = institution_data.avatar_url
     if institution_data.sector: institution.sector = institution_data.sector
+    if institution_data.description: institution.description=institution_data.description
     session.commit()
     session.refresh(institution)
     logger.info('institution_service.py - Institution successfully updated')
