@@ -9,6 +9,7 @@ class Institution(BaseModel):
     sector: str
     avatar_url: Optional[str] = None
     cnpj: str
+    description: Optional[str] = None
 
     @field_validator('name')
     @classmethod
@@ -32,6 +33,7 @@ class InstitutionResponse(BaseModel):
     avatar_url: Optional[str] = None
     cnpj: str
     username: str
+    description: str
     model_config = ConfigDict(
         from_attributes=True, ser_json_timedelta='iso8601'
     )
@@ -50,6 +52,7 @@ class InstitutionUpdate(BaseModel):
     name: Optional[str] = None
     sector: Optional[str] = None
     avatar_url: Optional[str] = None
+    description: Optional[str] = None
 
     @field_validator('name')
     @classmethod

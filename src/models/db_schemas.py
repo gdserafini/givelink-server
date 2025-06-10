@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, Text
 from sqlalchemy.orm import Mapped, mapped_column, registry
 from datetime import datetime
 
@@ -64,6 +64,7 @@ class InstitutionModel:
     cnpj: Mapped[str] = mapped_column(
         nullable=False, unique=True
     )
+    description: Mapped[str] = mapped_column(Text, nullable=True)
     user_id: Mapped[int] = mapped_column(
         ForeignKey('users.id'), nullable=False
     )
