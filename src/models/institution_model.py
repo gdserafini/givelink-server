@@ -33,7 +33,7 @@ class InstitutionResponse(BaseModel):
     avatar_url: Optional[str] = None
     cnpj: str
     username: str
-    description: str
+    description: Optional[str] = None
     model_config = ConfigDict(
         from_attributes=True, ser_json_timedelta='iso8601'
     )
