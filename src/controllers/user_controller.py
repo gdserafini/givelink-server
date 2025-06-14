@@ -56,6 +56,25 @@ def get_users(
 
 
 @router.get(
+    '/me',
+    response_model=UserResponse,
+    status_code=HTTPStatus.OK,
+    responses={
+        **responses['bad_request'],
+        **responses['internal_server_error'],
+        **responses['unauthorized'],
+        **responses['forbidden']
+    }
+)
+def get_logged_user(
+    session: T_Session, 
+    current_user: T_CurrentUser
+) -> UserResponse:
+    logger.info(f'user_controller.py - User id received - {current_user.id}')
+    return get_user_by_id_service(current_user.id, session)
+
+
+@router.get(
     '/{user_id}',
     response_model=UserResponse,
     status_code=HTTPStatus.OK,
